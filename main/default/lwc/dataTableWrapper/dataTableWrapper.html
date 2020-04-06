@@ -1,0 +1,46 @@
+<template>
+    <template if:true = {hasError}>
+    <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+        <span class="slds-assistive-text">error</span>
+        <span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small" title="Error">
+            <lightning-icon icon-name="utility:error" alternative-text="Error" title="Error" size="small"></lightning-icon>
+        </span>
+        <h2>{errorMessage}</h2>
+    </div>
+    </template>
+    <template if:false= {hasError}>
+        <div>
+            <lightning-card title="Record(s)" icon-name="custom:custom8"></lightning-card>
+            <div>
+                <lightning-datatable
+                        key-field="id"
+                        columns={columns}
+                        data={viewRecords}
+                        hide-checkbox-column
+                        default-sort-direction={defaultSortDirection}
+                        sorted-direction={sortDirection}
+                        sorted-by={sortedBy}
+                        onsort={onHandleSort}>
+                </lightning-datatable>
+            </div>
+            <div>
+                <div class="slds-m-around_medium slds-align_absolute-center">
+                    <div>
+                        <lightning-button-group>
+                            <lightning-button label="First" onclick={goToFirst} disabled={disableBack}></lightning-button>
+                            <lightning-button label="Previous" onclick={goToPrevious} disabled={disableBack}></lightning-button>
+                        </lightning-button-group>
+                        <span>
+                            Displaying {beginIndex} to {endndex} of {recordCount} records.
+                            Page {currentPage} of {totalPages}. 
+                        </span>
+                        <lightning-button-group> 
+                            <lightning-button label="Next" onclick={goToNext} disabled={disableForward}></lightning-button>
+                            <lightning-button label="Last" onclick={goToLast} disabled={disableForward}></lightning-button>
+                        </lightning-button-group>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>
