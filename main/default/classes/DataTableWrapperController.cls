@@ -1,5 +1,18 @@
+/**
+* DataTableWrapperController helps getting Salesforce records and field related daata.
+*
+* @version   1.0
+* @since     2020-04-05 
+*/
 public with sharing class DataTableWrapperController {
 
+    /**
+    * getRecords build the SOQL query, exucutes it and return the results
+    * @param API Name of the Object
+    * @param List of field in comma separated form
+    * @param SOQL filter in String form
+    * @return SObject records returned after running the query
+    */
     @AuraEnabled(cacheable=true)
     public static List<SObject> getRecords(String objectName, String fieldsToQuery, String filters){
         String query = 'SELECT ' + fieldsToQuery + ' FROM ' + objectName;
@@ -9,6 +22,13 @@ public with sharing class DataTableWrapperController {
         return Database.query(query);
     }
 
+    /**
+    * getFieldDetails gets the details about Object fields
+    * @param API Name of the Object
+    * @param List of field in comma separated form
+    * @param SOQL filter in String form
+    * @return Map between object fields and their details that can be used on JS Controller
+    */
     @AuraEnabled(cacheable=true)
     public static Map<String,Map<String, String>> getFieldDetails(String objectName, String fieldsToQuery, String filters){
         //Covert Object and Field Names to Lower case
@@ -33,7 +53,6 @@ public with sharing class DataTableWrapperController {
                     fieldDetailsMap.put('apiname', apiName);
                     fieldDetailsMap.put('displaytype', fieldDisplayTypeToJsTypeMap.get(displayType));
                     fieldDetailsMap.put('objectPluralName', objectResult.getLabelPlural());
-                    System.debug('adding' + fieldName);
                     fieldNameToDetailsMap.put(fieldName, fieldDetailsMap);
                 }
             } else {
@@ -46,6 +65,7 @@ public with sharing class DataTableWrapperController {
                     if (String.isnotBlank(relationshipField)) {
                         if (fieldMap.containsKey(relationshipField)) {
                             Schema.DescribeFieldResult fieldDescribeResult = fieldMap.get(relationshipField).getDescribe();
+                            String relationShipFieldLabel = fieldDescribeResult.getLabel();
                             String relationFieldApiName = fieldDescribeResult.getRelationshipName();
                             Schema.sObjectType referencedObject = fieldDescribeResult.getReferenceTo().get(0);
                             Map<String, Schema.SObjectField> relationshipFieldMap = referencedObject.getDescribe().fields.getMap();
@@ -56,11 +76,10 @@ public with sharing class DataTableWrapperController {
                                 String apiName = relationFieldDescribeResult.getName();
                                 if (fieldDisplayTypeToJsTypeMap.containsKey(displayType)) {
                                     Map<String, String> fieldDetailsMap = new Map<String, String>(); 
-                                    fieldDetailsMap.put('label', fieldLabel);
+                                    fieldDetailsMap.put('label', relationShipFieldLabel + ' - ' + fieldLabel);
                                     fieldDetailsMap.put('apiname', relationFieldApiName + '_' + apiName);
                                     fieldDetailsMap.put('displaytype', fieldDisplayTypeToJsTypeMap.get(displayType));
                                     fieldDetailsMap.put('objectPluralName', objectResult.getLabelPlural());
-                                    System.debug('adding' + fieldName);
                                     fieldNameToDetailsMap.put(fieldName, fieldDetailsMap);
                                 }
                             }
@@ -69,14 +88,14 @@ public with sharing class DataTableWrapperController {
                 }
             }
         }
-        for (String key : fieldNameToDetailsMap.keySet()) {
-            System.debug(key);
-            System.debug(fieldNameToDetailsMap.get(key));
-        }
-
         return fieldNameToDetailsMap;
     }
 
+    /**
+    * Get the Custom field name from the Relationship Name
+    * @param Relationship Name
+    * @return API Nme of the relationship field
+    */
     private static String getRelationshipFieldName(String relationshipName) {
         String relationshipFieldName = '';
         //Verify if field contains the relationship
@@ -88,6 +107,11 @@ public with sharing class DataTableWrapperController {
         return relationshipFieldName;
     }
 
+    /**
+    * Build a mapping between SF Data Type and JS Type
+    * @param Relationship Name
+    * @return API Nme of the relationship field
+    */
     private static Map<Schema.DisplayType, String> buildSFTypeToJsTypeMap() {
         Map<Schema.DisplayType, String> fieldDisplayTypeToJsTypeMap = new Map<Schema.DisplayType, String>();
         fieldDisplayTypeToJsTypeMap.put(Schema.DisplayType.BOOLEAN, 'boolean');
@@ -107,8 +131,8 @@ public with sharing class DataTableWrapperController {
         fieldDisplayTypeToJsTypeMap.put(Schema.DisplayType.REFERENCE, 'id');
         fieldDisplayTypeToJsTypeMap.put(Schema.DisplayType.STRING, 'text');
         fieldDisplayTypeToJsTypeMap.put(Schema.DisplayType.TEXTAREA, 'text');
-        fieldDisplayTypeToJsTypeMap.put(Schema.DisplayType.TIME, '');
-        fieldDisplayTypeToJsTypeMap.put(Schema.DisplayType.URL, '');
+        fieldDisplayTypeToJsTypeMap.put(Schema.DisplayType.TIME, 'text');
+        fieldDisplayTypeToJsTypeMap.put(Schema.DisplayType.URL, 'url');
         return fieldDisplayTypeToJsTypeMap;
     }
 }

@@ -1,9 +1,21 @@
 <template>
-    <lightning-input type="text" label="Object Name" value={objectName} onchange={handleObjectNameChange}></lightning-input>
-    <lightning-input type="text" label="Field API Names" value={fieldsToQuery} onchange={handleObjectFieldsChange}></lightning-input>
-    <lightning-input type="text" label="Filter(s)" value={filter} onchange={handleFilterChange}></lightning-input>
-    <div class="slds-align_absolute-center slds-m-around_small">
-        <lightning-button variant="brand" label="Query" title="Submit" onclick={handleClick} class="slds-m-left_x-small"></lightning-button>
-    </div>
-    <c-data-table-wrapper object-name={objectNameToSend} fields-to-query={fieldNamesToSend} filters={filtersToSend} records-per-page=30></c-data-table-wrapper>
+        <lightning-layout multiple-rows="true" class="slds-box slds-theme_shade">
+            <lightning-layout-item padding="around-small" size="12">
+                <lightning-layout>
+                    <lightning-layout-item padding="around-small" size="12">
+                        <lightning-input type="text" label="Object Name" value={objectName} onchange={handleObjectNameChange}></lightning-input>
+                        <lightning-input type="text" label="Field API Names" value={fieldsToQuery} onchange={handleObjectFieldsChange}></lightning-input>
+                        <lightning-input type="text" label="Filter(s)" value={filter} onchange={handleFilterChange}></lightning-input>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="12">
+                <div class="slds-align_absolute-center slds-m-around_small">
+                    <lightning-button variant="brand" label="Query" title="Submit" onclick={handleClick} class="slds-m-left_x-small"></lightning-button>
+                </div>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="12">
+                <c-data-table-wrapper object-name={objectNameToSend} fields-to-query={fieldNamesToSend} filters={filtersToSend} records-per-page={recordsPerPageToSend} disable-sort={disableSortToSend} disable-search={disableSearchToSend}></c-data-table-wrapper>
+            </lightning-layout-item>
+        </lightning-layout>
 </template>

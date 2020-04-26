@@ -23,9 +23,9 @@ export default class DemoApp extends LightningElement {
     @api objectName;
     @api fieldsToQuery;
     @api filters;
-    @api disableSort = false;
-    @api disableSearch = false;
-    @api recordsPerPage = 10;
+    @api disableSort;
+    @api disableSearch;
+    @api recordsPerPage;
 
     //Properties for Message / Alert
     @track hasMessage = true;
@@ -38,9 +38,6 @@ export default class DemoApp extends LightningElement {
     //Get the from APEX Controller
     @wire (getRecords, {objectName : '$objectName', fieldsToQuery : '$fieldsToQuery', filters : '$filters'})
     wiredRecords({error, data}) {
-        console.log('wiredRecords');
-        console.log(error);
-        console.log(data);
         if (data) {
             var allRecords = [];
             for (var index in data) {
@@ -57,7 +54,6 @@ export default class DemoApp extends LightningElement {
                     }
                 }
                 allRecords.push(compatibleRecord);
-                console.log(compatibleRecord);
             }
             this.allRecords = allRecords;
             this.filteredRecords = allRecords;
@@ -77,7 +73,6 @@ export default class DemoApp extends LightningElement {
             }
             this.filterRecords(0);
         } else if (error) {
-            console.log(error);
             this.hasRecords = false;
             this.hasMessage = true;
             this.preparePageMessage(
@@ -93,13 +88,9 @@ export default class DemoApp extends LightningElement {
     //Get details about the queried fields
     @wire (getFieldDetails, {objectName : '$objectName', fieldsToQuery : '$fieldsToQuery', filters : '$filters'})
     wiredFields({error, data}) {
-        console.log('wiredFields');
-        console.log(error);
-        console.log(data);
         var columns = [];
         if (data) {
             for (var fieldName in data) {
-                console.log(data[fieldName]);
                 var fieldLabel = data[fieldName]["label"];
                 var fieldDisplaytype = data[fieldName]["displaytype"];
                 var fieldApiName = data[fieldName]["apiname"];
@@ -110,12 +101,9 @@ export default class DemoApp extends LightningElement {
                     sortable: true
                 });
                 this.objectPluralName = data[fieldName]["objectPluralName"];
-                console.log(this.objectPluralName);
             }
             this.columns = columns;
-            this.hasMessage = false;
         } else if (error) {
-            console.log(error);
             this.hasMessage = true;
             this.hasRecords = false;
             this.preparePageMessage(
@@ -179,7 +167,6 @@ export default class DemoApp extends LightningElement {
 
     handleSearchText(event) {
         this.searchText = event.target.value;
-        console.log(this.searchText);
         if (this.searchText && this.searchText.length >= 2) {
             var filteredRecords = [];
             for (var index in this.allRecords) {
